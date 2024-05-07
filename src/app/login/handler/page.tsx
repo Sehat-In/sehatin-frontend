@@ -6,7 +6,7 @@ import { useEffect } from "react";
 export default function LoginHandler() {
     useEffect(() => {
         axios
-            .get(process.env.NEXT_PUBLIC_API_URL + "api/v1/auth/dummy")
+            .get(process.env.NEXT_PUBLIC_API_URL + "/api/v1/auth/dummy")
             .then((response) => {
                 axios
                     .get("/api")
