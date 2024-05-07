@@ -17,12 +17,10 @@ COPY . .
 EXPOSE 3000
 
 ARG NODE_ENV
-ARG PORT
 ARG NEXT_PUBLIC_API_URL
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT ${PORT}
 ENV NEXT_PUBLIC_API_URL ${NEXT_PUBLIC_API_URL}
 # Add other environment variables as needed
 

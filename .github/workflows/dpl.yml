@@ -48,5 +48,5 @@ jobs:
           sudo docker container rm -f sehatin_frontend || true &&
           sudo docker image rm -f ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPOSITORY}}:latest || true &&
           sudo docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPOSITORY}}:latest &&
-          sudo docker run --name sehatin_frontend -d -p ${{secrets.PORT}}:${{secrets.PORT}} ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPOSITORY}}:latest"
+          sudo docker run --name sehatin_frontend -d -p 3000:3000 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPOSITORY}}:latest"
     if: github.ref == 'refs/heads/main'
