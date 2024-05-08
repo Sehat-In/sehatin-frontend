@@ -6,10 +6,12 @@ import { useEffect } from "react";
 
 export default function LoginHandler() {
     const searchParams = useSearchParams();
-;   const search = searchParams.get('key') || 'ga ada';
-    console.log(search)
-    localStorage.setItem('key', search);
+    useEffect(() => {
+        const search = searchParams.get('key') || 'ga ada';
+        console.log(search)
+        localStorage.setItem('key', search);
+    }, [searchParams]);
     return <>
-    <h1>Logging in...</h1>
+        <h1>Logging in...</h1>
     </>;
 }
