@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
     const cookie = cookies();
+    console.log(cookie.getAll());
     const user = JSON.stringify(cookie.get('user'));
     const userObj = JSON.parse(user);
     const mappedUser = {
