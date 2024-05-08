@@ -8,8 +8,12 @@ export default function LoginHandler() {
         await axios
             .post(process.env.NEXT_PUBLIC_API_URL + "/api/v1/auth/dummy")
             .then(async (response) => {
-                console.log(response);
             });
+        await axios
+            .get('/api')
+            .then((response)=>{
+                console.log(response);
+            })
     };
 
     useEffect(() => {
