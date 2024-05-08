@@ -1,20 +1,13 @@
 "use client";
 
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginHandler() {
-    const handleLogin = async () => {
-        await axios
-            .post(process.env.NEXT_PUBLIC_API_URL + "/api/v1/auth/dummy")
-            .then((response) => {
-                console.log(response.headers['set-cookie']);
-            }); 
-    };
-
-    useEffect(() => {
-        handleLogin();
-    }, []); 
+    const searchParams = useSearchParams();
+;   const search = searchParams.get('key')
+    console.log(search)
     return <>
     <h1>Logging in...</h1>
     </>;
