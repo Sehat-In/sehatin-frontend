@@ -48,6 +48,9 @@ export const UserContextProvider: React.FC<any> = ({ children }:any) => {
             localStorage.setItem('user', JSON.stringify(response.data));
             window.location.href = '/';
         })
+        .catch((error)=>{
+            console.log(error);
+        })
     }
 
     const logout = () => {
@@ -68,6 +71,10 @@ export const UserContextProvider: React.FC<any> = ({ children }:any) => {
             localStorage.setItem('user', JSON.stringify(query));
             setUserData(query);
             setIsAuthenticated(true);
+            setLoading(false);
+        })
+        .catch((error)=>{
+            localStorage.removeItem('user');
             setLoading(false);
         })
     }
