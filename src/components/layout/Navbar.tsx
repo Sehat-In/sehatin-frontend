@@ -3,16 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useUserContext } from "../context/UserContext";
 import { useEffect, useState } from "react";
-import { Button, Icon } from "@chakra-ui/react";
 import { Spinner } from '@chakra-ui/react'
-import { BellIcon } from "@chakra-ui/icons";
-import { IconButton } from '@chakra-ui/react'
 import axios from "axios";
-
+import Notifications from "@/modules/notifications/Notification";
 
 const Navbar = () => {
     const {userData, loading, isAuthenticated, logout} = useUserContext();
     const [notification, setNotification] = useState(false);
+    
     useEffect(()=>{
         axios.get(process.env.NEXT_PUBLIC_API_URL + '/api/v1/posts/check-notification/' + userData.username)
             .then((res)=>{
@@ -42,8 +40,8 @@ const Navbar = () => {
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
                     {!isAuthenticated ? <></> : notification ? 
-                    <IconButton aria-label="notification-button" boxSize={7} isRound={true} variant='solid' colorScheme='red' icon={<Icon as={BellIcon} boxSize={5}/>} onClick={handleLogin} /> :
-                    <IconButton aria-label="notification-button" boxSize={7} isRound={true} variant='solid' colorScheme='gray' icon={<Icon as={BellIcon} boxSize={5}/>} onClick={handleLogin} />}
+                    <Notifications color='red' username={userData.username}/> :
+                    <Notifications color='gray' username={userData.username}/>}
                     <ul className="menu menu-horizontal px-1" style={{alignItems: 'center'}}>
                         <li>
                             {loading ? <div><Spinner color='green.300' /></div> : 
