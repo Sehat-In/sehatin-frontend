@@ -41,7 +41,7 @@ const Navbar = () => {
                     <a className="btn btn-ghost text-xl">Sehat-In</a>
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
-                    {notification ? 
+                    {isAuthenticated ? <></> : notification ? 
                     <IconButton aria-label="notification-button" boxSize={7} isRound={true} variant='solid' colorScheme='red' icon={<Icon as={BellIcon} boxSize={5}/>} onClick={handleLogin} /> :
                     <IconButton aria-label="notification-button" boxSize={7} isRound={true} variant='solid' colorScheme='gray' icon={<Icon as={BellIcon} boxSize={5}/>} onClick={handleLogin} />}
                     <ul className="menu menu-horizontal px-1" style={{alignItems: 'center'}}>
