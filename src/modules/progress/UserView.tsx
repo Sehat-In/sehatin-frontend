@@ -217,7 +217,7 @@ const UserViewModule = () => {
             <Card p='3' mb='10'>
                 <CardHeader>
                     <Flex>
-                        <Heading size='lg'>Hello, Syadza!</Heading>
+                        <Heading size='lg'>Hello, {userData.username}!</Heading>
                         <Spacer />
                         <Box textAlign='right'>
                             <Stat>
