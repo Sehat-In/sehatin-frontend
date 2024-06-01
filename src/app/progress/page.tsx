@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserViewModule from "@/modules/progress/UserView";
 import { useUserContext } from '@/components/context/UserContext';
+import { Spinner } from '@chakra-ui/react';
 
 const UserViewPage = () => {
   const router = useRouter();
@@ -17,7 +18,7 @@ const UserViewPage = () => {
 
   return (
     <div style={{ padding: '30px' }}>
-      <UserViewModule />
+      {loading ? <div><Spinner color='green.300' /></div> : isAuthenticated ? <UserViewModule /> : <></>}
     </div>
   );
 }
