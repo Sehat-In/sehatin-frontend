@@ -3,6 +3,18 @@
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  Spinner,
+  Text,
+  VStack,
+  CircularProgress,
+  CircularProgressLabel,
+} from "@chakra-ui/react";
 
 interface Exercise {
   id: number;
@@ -40,8 +52,12 @@ const WorkoutDetail = () => {
 
   useEffect(() => {
     if (type && level) {
+      console.log(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/workouts/${type}/${level}`
+      );
+
       fetch(
-        `https://meal-service.sehat-in.com/api/v1/workouts/${type}/${level}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/workouts/${type}/${level}`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -100,144 +116,192 @@ const WorkoutDetail = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <Flex justify="center" align="center" minH="100vh" bg="gray.100">
+        <Spinner size="xl" color="blue.500" />
+      </Flex>
+    );
   }
 
   if (!workout) {
-    return <p>Workout not found</p>;
+    return (
+      <Flex justify="center" align="center" minH="100vh" bg="gray.100">
+        <Text fontSize="2xl">Workout not found</Text>
+      </Flex>
+    );
   }
 
   const currentExercise = workout.exercises[currentExerciseIndex];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-5xl font-bold text-center mb-12 text-gray-800">
+    <Box minH="100vh" bg="gray.100" p={8}>
+      <Heading as="h1" size="2xl" textAlign="center" mb={12} color="gray.800">
         {workout.name}
-      </h1>
-      <p className="text-xl text-center mb-8">{workout.description}</p>
-      {currentExerciseIndex === -1 && (
-        <button
+      </Heading>
+      <Text fontSize="xl" textAlign="center" mb={8}>
+        {workout.description}
+      </Text>
+      {currentExerciseIndex === -1 ? (
+        <Button
           onClick={handleStartWorkout}
-          className="w-full bg-green-500 text-white px-4 py-2 rounded mb-8"
+          w="full"
+          bg="green.500"
+          color="white"
+          size="lg"
+          _hover={{ bg: "green.600" }}
+          mb={8}
         >
           Start Workout
-        </button>
-      )}
-      {currentExerciseIndex > -1 && (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8 flex flex-col lg:flex-row">
-          <div className="relative w-full lg:w-1/2" style={{ height: "50vh" }}>
-            <Image
-              src={currentExercise.image_url}
-              alt={currentExercise.name}
-              layout="fill"
-              objectFit="contain"
-              className="w-full h-full object-center"
-            />
-          </div>
-          <div className="p-6 flex flex-col justify-center items-center lg:w-1/2">
-            <h2 className="text-3xl font-bold mb-4 text-center">
-              {isRest ? "Rest" : currentExercise.name}
-            </h2>
-            <div className="text-center mb-6">
-              <div className="text-6xl font-bold text-blue-600 mb-2">
-                {timer} seconds
-              </div>
-              {isRest && (
-                <p className="text-2xl text-gray-700">Rest for 30 seconds</p>
-              )}
-            </div>
-            {!isRest && (
-              <div className="text-center text-gray-700 mb-4">
-                {currentExercise.duration && (
-                  <p className="text-xl">
-                    Duration:{" "}
-                    <span className="font-bold">
-                      {currentExercise.duration}
-                    </span>{" "}
-                    seconds
-                  </p>
-                )}
-                {currentExercise.reps && (
-                  <p className="text-xl">
-                    Reps:{" "}
-                    <span className="font-bold">{currentExercise.reps}</span>
-                  </p>
-                )}
-                {currentExercise.sets && (
-                  <p className="text-xl">
-                    Sets:{" "}
-                    <span className="font-bold">{currentExercise.sets}</span>
-                  </p>
-                )}
-              </div>
-            )}
-            <div className="flex justify-center space-x-4 mb-4">
-              {!isPaused ? (
-                <button
-                  onClick={handlePause}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded"
-                >
-                  Pause
-                </button>
-              ) : (
-                <button
-                  onClick={handleContinue}
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                  Continue
-                </button>
-              )}
-              <button
-                onClick={isRest ? handleSkipRest : handleNextExercise}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                {isRest ? "Skip Rest" : "Next Exercise"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {workout.exercises.map((exercise) => (
-          <div
-            key={exercise.id}
-            className="bg-white rounded-lg shadow-lg overflow-hidden"
+        </Button>
+      ) : (
+        <Box bg="white" borderRadius="lg" shadow="lg" overflow="hidden" mb={8}>
+          <Grid
+            templateColumns={{ base: "1fr", lg: "1fr 1fr" }}
+            h={{ base: "70vh", lg: "80vh" }}
           >
-            <div className="relative w-full h-48 md:h-64 lg:h-80">
+            <Box position="relative" h="100%">
+              <Image
+                src={currentExercise.image_url}
+                alt={currentExercise.name}
+                layout="fill"
+                objectFit="contain"
+              />
+            </Box>
+            <Flex direction="column" p={6} justify="center" align="center">
+              <Heading as="h2" size="xl" mb={4} textAlign="center">
+                {isRest ? "Rest" : currentExercise.name}
+              </Heading>
+              <CircularProgress
+                value={timer}
+                max={isRest ? 30 : currentExercise.duration || 1}
+                size="120px"
+                color="blue.500"
+                mb={6}
+              >
+                <CircularProgressLabel fontSize="2xl">
+                  {timer}s
+                </CircularProgressLabel>
+              </CircularProgress>
+              {isRest && (
+                <Text fontSize="2xl" color="gray.700" mb={4}>
+                  Rest for 30 seconds
+                </Text>
+              )}
+              {!isRest && (
+                <VStack spacing={2} mb={4}>
+                  {currentExercise.duration && (
+                    <Text fontSize="xl">
+                      Duration:{" "}
+                      <Text as="span" fontWeight="bold">
+                        {currentExercise.duration}
+                      </Text>{" "}
+                      seconds
+                    </Text>
+                  )}
+                  {currentExercise.reps && (
+                    <Text fontSize="xl">
+                      Reps:{" "}
+                      <Text as="span" fontWeight="bold">
+                        {currentExercise.reps}
+                      </Text>
+                    </Text>
+                  )}
+                  {currentExercise.sets && (
+                    <Text fontSize="xl">
+                      Sets:{" "}
+                      <Text as="span" fontWeight="bold">
+                        {currentExercise.sets}
+                      </Text>
+                    </Text>
+                  )}
+                </VStack>
+              )}
+              <Flex justify="center" wrap="wrap" gap={4}>
+                {!isPaused ? (
+                  <Button
+                    onClick={handlePause}
+                    bg="yellow.500"
+                    color="white"
+                    _hover={{ bg: "yellow.600" }}
+                  >
+                    Pause
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleContinue}
+                    bg="green.500"
+                    color="white"
+                    _hover={{ bg: "green.600" }}
+                  >
+                    Continue
+                  </Button>
+                )}
+                <Button
+                  onClick={isRest ? handleSkipRest : handleNextExercise}
+                  bg="blue.500"
+                  color="white"
+                  _hover={{ bg: "blue.600" }}
+                >
+                  {isRest ? "Skip Rest" : "Next Exercise"}
+                </Button>
+              </Flex>
+            </Flex>
+          </Grid>
+        </Box>
+      )}
+      <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={8}>
+        {workout.exercises.map((exercise) => (
+          <Box
+            key={exercise.id}
+            bg="white"
+            borderRadius="lg"
+            shadow="lg"
+            overflow="hidden"
+          >
+            <Box position="relative" h={{ base: "48", md: "64", lg: "80" }}>
               <Image
                 src={exercise.image_url}
                 alt={exercise.name}
                 layout="fill"
                 objectFit="cover"
-                className="w-full h-full object-center"
               />
-            </div>
-            <div className="p-6">
-              <h2 className="text-2xl font-bold mb-2">{exercise.name}</h2>
-              <div className="text-gray-700 mb-4">
+            </Box>
+            <Box p={6}>
+              <Heading as="h2" size="lg" mb={2}>
+                {exercise.name}
+              </Heading>
+              <VStack spacing={2} align="start">
                 {exercise.duration && (
-                  <p>
+                  <Text>
                     Duration:{" "}
-                    <span className="font-bold">{exercise.duration}</span>{" "}
+                    <Text as="span" fontWeight="bold">
+                      {exercise.duration}
+                    </Text>{" "}
                     seconds
-                  </p>
+                  </Text>
                 )}
                 {exercise.reps && (
-                  <p>
-                    Reps: <span className="font-bold">{exercise.reps}</span>
-                  </p>
+                  <Text>
+                    Reps:{" "}
+                    <Text as="span" fontWeight="bold">
+                      {exercise.reps}
+                    </Text>
+                  </Text>
                 )}
                 {exercise.sets && (
-                  <p>
-                    Sets: <span className="font-bold">{exercise.sets}</span>
-                  </p>
+                  <Text>
+                    Sets:{" "}
+                    <Text as="span" fontWeight="bold">
+                      {exercise.sets}
+                    </Text>
+                  </Text>
                 )}
-              </div>
-            </div>
-          </div>
+              </VStack>
+            </Box>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

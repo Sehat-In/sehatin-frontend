@@ -3,12 +3,34 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useUserContext } from "@/components/context/UserContext";
-import Image from "next/image";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Heading,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 
 const MealPlans = () => {
   const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { isAuthenticated } = useUserContext();
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login"); // Redirect to login if not authenticated
+    }
+  }, [isAuthenticated, router]);
 
   const plans = [
     {
@@ -36,6 +58,7 @@ const MealPlans = () => {
 
   const handlePlanClick = (planId: string) => {
     setSelectedPlan(planId);
+    onOpen();
   };
 
   const handleOptionClick = (option: string) => {
@@ -44,79 +67,64 @@ const MealPlans = () => {
     }
   };
 
-  const handleCloseModal = () => {
-    setSelectedPlan(null);
-  };
-
-  const handleEscapePress = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      handleCloseModal();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleEscapePress);
-    return () => {
-      document.removeEventListener("keydown", handleEscapePress);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-5xl font-bold text-center mb-12 text-gray-800">
+    <Box className="min-h-screen bg-gray-100 p-8">
+      <Heading
+        as="h1"
+        className="text-5xl font-bold text-center mb-12 text-gray-800"
+      >
         Choose Your Meal Plan
-      </h1>
-      <div className="flex flex-col gap-8">
+      </Heading>
+      <Flex direction="column" gap={8} align="center">
         {plans.map((plan) => (
-          <div
+          <Box
             key={plan.id}
-            className="relative bg-cover bg-center h-72 rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105"
+            className="relative bg-cover bg-center h-64 w-full max-w-3xl rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105"
             style={{ backgroundImage: `url(${plan.backgroundImage})` }}
             onClick={() => handlePlanClick(plan.id)}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-75 rounded-lg"></div>
-            <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
-              <h2 className="text-white text-3xl font-bold mb-4">
+            <Box className="absolute inset-0 bg-black opacity-70 rounded-lg"></Box>
+            <Center className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
+              <Heading as="h2" className="text-white text-3xl font-bold mb-2">
                 {plan.title}
-              </h2>
-              <p className="text-white text-lg">{plan.description}</p>
-            </div>
-          </div>
+              </Heading>
+              <Text className="text-white text-lg">{plan.description}</Text>
+            </Center>
+          </Box>
         ))}
-      </div>
+      </Flex>
       {selectedPlan && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center"
-          onClick={handleCloseModal}
-        >
-          <div
-            className="bg-white p-8 rounded-lg shadow-lg text-center relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-2 right-2 text-black"
-              onClick={handleCloseModal}
-            >
-              X
-            </button>
-            <h2 className="text-2xl font-bold mb-4">Choose Plan Type</h2>
-            <button
-              className="bg-blue-500 text-white px-6 py-2 rounded mr-4 hover:bg-blue-600"
-              onClick={() => handleOptionClick("daily")}
-            >
-              Daily Plan
-            </button>
-            <button
-              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
-              onClick={() => handleOptionClick("weekly")}
-            >
-              Weekly Plan
-            </button>
-          </div>
-        </div>
+        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Choose Plan Type</ModalHeader>
+            <ModalCloseButton className="text-red-500" />
+            <ModalBody className="text-center">
+              <Button
+                className="bg-blue-500 text-white px-6 py-2 rounded mr-4 hover:bg-blue-600"
+                onClick={() => handleOptionClick("daily")}
+              >
+                Daily Plan
+              </Button>
+              <Button
+                className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+                onClick={() => handleOptionClick("weekly")}
+              >
+                Weekly Plan
+              </Button>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                onClick={onClose}
+              >
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       )}
-    </div>
+    </Box>
   );
 };
 

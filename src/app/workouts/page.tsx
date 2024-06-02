@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaChevronDown,
@@ -9,6 +9,19 @@ import {
   FaHeartbeat,
   FaChild,
 } from "react-icons/fa";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  VStack,
+  useDisclosure,
+  useOutsideClick,
+  useToast,
+} from "@chakra-ui/react";
+import { useUserContext } from "@/components/context/UserContext";
 
 const workoutPrograms = [
   {
@@ -102,8 +115,38 @@ const workoutPrograms = [
 const WorkoutPlans = () => {
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+  const { loading, isAuthenticated } = useUserContext();
+  const toast = useToast();
+
+  useOutsideClick({
+    ref: dropdownRef,
+    handler: () => {
+      if (isOpen) {
+        onClose();
+      }
+    },
+  });
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [isOpen, onClose]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!isAuthenticated) {
+    router.push("/login"); // Redirect to login if not authenticated
+    return null;
+  }
 
   const handleProgramClick = (programId: string) => {
     setSelectedProgram(programId);
@@ -112,16 +155,19 @@ const WorkoutPlans = () => {
 
   const handleLevelClick = (levelId: string) => {
     setSelectedLevel(levelId);
-    setShowDropdown(false);
-  };
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+    onClose(); // Close dropdown after selection
   };
 
   const handleStartWorkout = () => {
     if (selectedProgram && selectedLevel) {
       router.push(`/workouts/${selectedProgram}/${selectedLevel}`);
+    } else {
+      toast({
+        title: "Please select a workout plan and level.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -130,78 +176,116 @@ const WorkoutPlans = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-5xl font-bold text-center mb-12 text-gray-800">
+    <Box minH="100vh" bg="gray.100" p={8}>
+      <Heading as="h1" size="2xl" textAlign="center" mb={12} color="gray.800">
         Choose Your Workout Plan
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      </Heading>
+      <Grid
+        templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+        gap={8}
+        mb={12}
+      >
         {workoutPrograms.map((program) => (
-          <div
+          <Box
             key={program.id}
-            className="relative bg-cover bg-center h-64 rounded-lg shadow-lg cursor-pointer"
-            style={{ backgroundImage: `url(${program.bannerImage})` }}
+            bgImage={`url(${program.bannerImage})`}
+            bgSize="cover"
+            bgPosition="center"
+            aspectRatio={4 / 5}
+            borderRadius="lg"
+            boxShadow="lg"
+            cursor="pointer"
             onClick={() => handleProgramClick(program.id)}
+            position="relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-75 flex flex-col justify-center items-center rounded-lg">
-              <h2 className="text-white text-3xl font-bold mb-2">
-                {program.title}
-              </h2>
-              <p className="text-white text-center px-4">
-                {program.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      {selectedProgramDetails && (
-        <div className="bg-white p-8 rounded-lg shadow-lg mb-12">
-          <h2 className="text-4xl font-bold mb-4">
-            {selectedProgramDetails.title}
-          </h2>
-          <p className="text-gray-700 mb-4">
-            {selectedProgramDetails.explanation}
-          </p>
-          <div className="relative mb-4">
-            <button
-              onClick={toggleDropdown}
-              className="w-full bg-blue-500 text-white px-4 py-2 rounded flex justify-between items-center"
+            <Flex
+              position="absolute"
+              inset="0"
+              bgGradient="linear(to-t, blackAlpha.800, transparent)"
+              borderRadius="lg"
+              justify="center"
+              align="center"
+              direction="column"
             >
-              <span>
-                {selectedLevel
-                  ? selectedProgramDetails.levels.find(
-                      (level) => level.id === selectedLevel
-                    )?.title
-                  : "Select Difficulty Level"}
-              </span>
-              {showDropdown ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
-            {showDropdown && (
-              <div className="absolute w-full bg-white border rounded shadow-lg mt-2 z-10 mb-12">
+              <Heading as="h2" size="lg" color="white" mb={2}>
+                {program.title}
+              </Heading>
+              <Text color="white" textAlign="center" px={4}>
+                {program.description}
+              </Text>
+            </Flex>
+          </Box>
+        ))}
+      </Grid>
+      {selectedProgramDetails && (
+        <Box bg="white" p={8} borderRadius="lg" boxShadow="lg" mb={12}>
+          <Heading as="h2" size="xl" mb={4}>
+            {selectedProgramDetails.title}
+          </Heading>
+          <Text color="gray.700" mb={4}>
+            {selectedProgramDetails.explanation}
+          </Text>
+          <Box mb={4} position="relative" ref={dropdownRef}>
+            <Button
+              onClick={onOpen}
+              w="full"
+              bg="blue.500"
+              color="white"
+              _hover={{ bg: "blue.600" }}
+              rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
+            >
+              {selectedLevel
+                ? selectedProgramDetails.levels.find(
+                    (level) => level.id === selectedLevel
+                  )?.title
+                : "Select Difficulty Level"}
+            </Button>
+            {isOpen && (
+              <Box
+                position="absolute"
+                w="full"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                boxShadow="lg"
+                mt={2}
+                zIndex={10}
+              >
                 {selectedProgramDetails.levels.map((level) => (
-                  <div
+                  <Box
                     key={level.id}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                    p={4}
+                    cursor="pointer"
+                    _hover={{ bg: "gray.200" }}
                     onClick={() => handleLevelClick(level.id)}
                   >
-                    <h3 className="text-xl font-semibold">{level.title}</h3>
-                    <p className="text-gray-600">{level.description}</p>
-                    <p className="text-sm text-gray-500">{level.parameters}</p>
-                  </div>
+                    <Heading as="h3" size="md" mb={1}>
+                      {level.title}
+                    </Heading>
+                    <Text color="gray.600">{level.description}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {level.parameters}
+                    </Text>
+                  </Box>
                 ))}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
           {selectedLevel && (
-            <button
+            <Button
               onClick={handleStartWorkout}
-              className="w-full bg-green-500 text-white px-4 py-2 rounded"
+              w="full"
+              bg="green.500"
+              color="white"
+              _hover={{ bg: "green.600" }}
             >
               Start Workout
-            </button>
+            </Button>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
