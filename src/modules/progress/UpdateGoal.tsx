@@ -2,17 +2,21 @@
 
 import { useState, useEffect, ChangeEvent } from 'react';
 import {
-    FormControl,
-    FormLabel,
-    Input,
-    Select,
-    RadioGroup,
-    Radio,
-    HStack,
     Button,
     Flex,
-    useToast,
+    FormControl,
+    FormLabel,
+    HStack,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    Radio,
+    RadioGroup,
+    Select,
     Spinner,
+    useToast,
 } from '@chakra-ui/react';
 import { useUserContext } from '@/components/context/UserContext';
 
@@ -96,6 +100,10 @@ const UpdateGoalModule = ({ goalId }: UpdateGoalModuleProps) => {
                     position: 'top-right',
                     isClosable: true,
                 });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
@@ -108,10 +116,6 @@ const UpdateGoalModule = ({ goalId }: UpdateGoalModuleProps) => {
                 position: 'top-right',
                 isClosable: true,
             });
-        } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
         }
     };
 
@@ -122,6 +126,8 @@ const UpdateGoalModule = ({ goalId }: UpdateGoalModuleProps) => {
             </Flex>
         );
     }
+
+    const maxProgress = value ? parseFloat(value) : undefined;
 
     return (
         <FormControl>
@@ -139,40 +145,62 @@ const UpdateGoalModule = ({ goalId }: UpdateGoalModuleProps) => {
             </Select>
 
             <FormLabel>Value ({['lose_weight', 'gain_weight'].includes(goalType) ? 'kg' : 'cal'})</FormLabel>
-            <Input 
-                type='number' 
-                step='0.1' 
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+            <NumberInput
+                min={1}
+                precision={1} 
+                step={0.1} 
+                onChange={(valueString) => setValue(valueString)}
                 value={value}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <FormLabel>Period</FormLabel>
-            <Input 
-                type='number' 
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPeriod(e.target.value)}
+            <NumberInput 
+                min={1}
+                onChange={(valueString) => setPeriod(valueString)}
                 value={period}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <FormLabel>Period Unit</FormLabel>
             <RadioGroup onChange={(e: string) => setPeriodUnit(e)} value={periodUnit} mb={4}>
                 <HStack spacing='24px'>
                     <Radio value='hour'>Hour(s)</Radio>
                     <Radio value='day'>Day(s)</Radio>
+                    <Radio value='week'>Week(s)</Radio>
                     <Radio value='month'>Month(s)</Radio>
                     <Radio value='year'>Year(s)</Radio>
                 </HStack>
             </RadioGroup>
 
             <FormLabel>Progress</FormLabel>
-            <Input 
-                type='number' 
-                step='0.1' 
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setProgress(e.target.value)}
+            <NumberInput 
+                min={1}
+                max={maxProgress}
+                precision={1}
+                step={0.1} 
+                onChange={(valueString) => setProgress(valueString)}
                 value={progress}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <Flex justify={'right'} mt={6}>
                 <Button onClick={handleSubmit} colorScheme='teal' size='md'>Update Goal</Button>
