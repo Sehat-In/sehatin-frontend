@@ -34,13 +34,23 @@ const UpdatePostModule = ({ postId }: PostProp ) => {
                 setIsLoading(false);
     
             } catch (error) {
-                toast({
-                    title: 'Error fetching post data.',
-                    description: error.message,
-                    status: 'error',
-                    position: 'top-right',
-                    isClosable: true,
-                });
+                if (error instanceof Error) {
+                    toast({
+                        title: 'Error detching post data.',
+                        description: error.message,
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                } else {
+                    toast({
+                        title: 'Error fetching post data.',
+                        description: 'An unknown error occurred.',
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                }
                 setIsLoading(false);
             }
         };
@@ -76,13 +86,23 @@ const UpdatePostModule = ({ postId }: PostProp ) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error editing post.',
-                description: error.message ,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error editing post.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error editing post.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         } finally {
             setTimeout(() => {
                 window.location.reload();

@@ -75,13 +75,23 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error deleting post.',
-                description: error.message,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error deleting post.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error deleting post.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         } finally {
             setTimeout(() => {
                 window.location.reload();
@@ -106,13 +116,23 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error fetching comments.',
-                description: error.message,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error fetching comments.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error fetching comments.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         }
     };
 

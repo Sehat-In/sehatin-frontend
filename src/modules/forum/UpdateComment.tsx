@@ -12,10 +12,10 @@ import {
 } from '@chakra-ui/react';
 
 interface CommentProp {
-    commentId: string
+    commentId: string;
 }
 
-const UpdateCommentModule = ({ commentId }: CommentProp ) => {
+const UpdateCommentModule = ({ commentId }: CommentProp) => {
     const toast = useToast();
 
     const [content, setContent] = useState('');
@@ -25,30 +25,41 @@ const UpdateCommentModule = ({ commentId }: CommentProp ) => {
         const fetchCommentData = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get/${commentId}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const commentData = await response.json();
     
                 setContent(commentData.content);
                 setIsLoading(false);
     
             } catch (error) {
-                toast({
-                    title: 'Error fetching comment data.',
-                    description: error.message,
-                    status: 'error',
-                    position: 'top-right',
-                    isClosable: true,
-                });
-                setIsLoading(false);
+                if (error instanceof Error) {
+                    toast({
+                        title: 'Error fetching comment data.',
+                        description: error.message,
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                } else {
+                    toast({
+                        title: 'Error fetching comment data.',
+                        description: 'An unknown error occurred.',
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                }
             }
         };
 
         fetchCommentData();
     }, [commentId, toast]);
 
-
     const handleSubmit = async () => {
         const commentData = {
-            content: content
+            content: content,
         };
 
         try {
@@ -72,13 +83,23 @@ const UpdateCommentModule = ({ commentId }: CommentProp ) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error editing comment.',
-                description: error.message ,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error editing comment.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error editing comment.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         } finally {
             setTimeout(() => {
                 window.location.reload();
@@ -89,7 +110,7 @@ const UpdateCommentModule = ({ commentId }: CommentProp ) => {
     if (isLoading) {
         return (
             <Flex justify="center" align="center" height="100vh">
-                <Spinner size="xl" color='teal'/>
+                <Spinner size="xl" color='teal' />
             </Flex>
         );
     }
@@ -97,7 +118,7 @@ const UpdateCommentModule = ({ commentId }: CommentProp ) => {
     return (
         <FormControl isRequired>
             <FormLabel>Content</FormLabel>
-            <Textarea onChange={(e) => setContent(e.target.value)} value={content} mb={4}  />
+            <Textarea onChange={(e) => setContent(e.target.value)} value={content} mb={4} />
 
             <Flex justify={'right'} mt={6}>
                 <Button onClick={handleSubmit} colorScheme='teal' size='md'>Save Edit</Button>
