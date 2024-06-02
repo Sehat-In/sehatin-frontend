@@ -11,7 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { useUserContext } from '@/components/context/UserContext';
 
-const CreateCommentModule = () => {
+interface CommentProp {
+    postId: string;
+}
+
+const CreateCommentModule = ({ postId }: CommentProp) => {
     const { userData } = useUserContext();
     const toast = useToast();
 
@@ -24,7 +28,7 @@ const CreateCommentModule = () => {
         };
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/create`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/create/${postId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

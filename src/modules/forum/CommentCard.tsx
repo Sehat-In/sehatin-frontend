@@ -1,10 +1,11 @@
 "use client"
 
 import { useUserContext } from "@/components/context/UserContext";
-import { ChatIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Card, CardHeader, Flex, Heading, Spacer, CardBody, Box, Button, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, CardFooter, Text, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, ButtonGroup, useToast } from "@chakra-ui/react";
 import UpdateCommentModule from "./UpdateComment";
 import { useState } from "react";
+import CreateCommentModule from "./CreateComment";
 
 interface Comment {
     content: string,
@@ -22,7 +23,10 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
     const toast = useToast();
     
     const [currentCommentId, setCurrentCommentId] = useState<string | null>(null);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
 
+    const modalNewComment = useDisclosure()
     const modalUpdateComment = useDisclosure()
     const modalDeleteComment = useDisclosure()
 
@@ -45,7 +49,7 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                 },
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast({
                     title: 'Comment deleted successfully!',
                     status: 'success',
@@ -71,6 +75,33 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
         }
     };
 
+    const fetchComment = async (postId: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get/${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setComments(data);
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            toast({
+                title: 'Error fetching comments.',
+                description: error.message,
+                status: 'error',
+                position: 'top-right',
+                isClosable: true,
+            });
+        }
+    };
+
     if (dataComment && dataComment.length != 0) {
         return (
             <Box display="flex" flexDirection="column" width='95%'>
@@ -82,34 +113,25 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                                 <Flex flexDirection="column">
                                     <Heading size='sm'>{comment.username}</Heading>
                                 </Flex>
-                                <Spacer/>
+                                <Spacer />
+                                {userData.username === comment.username && (
                                 <Box textAlign='right'>
                                     <Menu>
                                         <MenuButton as={Button} rounded={"full"} variant={"link"} cursor={"pointer"} minW={0}>
                                             <ChevronDownIcon />
                                         </MenuButton>
-                                        <MenuList>
-                                            <MenuItem>
-                                                Subscribe
+                                        <MenuList>                                            
+                                            <MenuItem onClick={() => handleUpdateComment(comment.id)}>
+                                                Edit Comment
                                             </MenuItem>
-                                            <MenuItem>
-                                                Reply
+                                            <MenuDivider />
+                                            <MenuItem onClick={() => handleDeleteCommentModal(comment.id)} style={{ color: "red" }}>
+                                                Delete
                                             </MenuItem>
-                                            
-                                            {userData.username === comment.username && (
-                                                <>
-                                                    <MenuItem onClick={() => handleUpdateComment(comment.id)}>
-                                                        Edit Comment
-                                                    </MenuItem>
-                                                    <MenuDivider />
-                                                    <MenuItem onClick={() => handleDeleteCommentModal(comment.id)} style={{ color: "red" }}>
-                                                        Delete
-                                                    </MenuItem>
-                                                </>
-                                            )}
-                                        </MenuList>
-                                    </Menu>
-                                </Box>
+                                            </MenuList>
+                                        </Menu>
+                                    </Box>
+                                )}
                             </Flex>
                         </CardHeader>
 
@@ -118,10 +140,7 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                         </CardBody>
 
                         <CardFooter justifyContent={"space-between"}>
-                            <Text color="gray">{comment.created_at.substring(0,10)}</Text>
-                            <Button>
-                                <ChatIcon />
-                            </Button>
+                            <Text color="gray">{comment.created_at.substring(0, 10)}</Text>
                         </CardFooter>
                     </Card>
                     
@@ -154,6 +173,18 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
+
+                <Modal blockScrollOnMount={false} scrollBehavior='inside' isOpen={modalNewComment.isOpen} onClose={modalNewComment.onClose}>
+                    <ModalOverlay />
+                    <ModalContent>
+                        <ModalHeader>New Comment</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody mb={6}>
+                            {currentCommentId && (<CreateCommentModule postId={currentCommentId} />)}
+                        </ModalBody>
+                    </ModalContent>
+                </Modal>
+
             </Box>
 
             

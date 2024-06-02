@@ -2,10 +2,11 @@
 
 import { useUserContext } from "@/components/context/UserContext";
 import { ChatIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { Card, CardHeader, Flex, Heading, Spacer, CardBody, Box, Button, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, CardFooter, Text, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, ButtonGroup, useToast } from "@chakra-ui/react";';
+import { Card, CardHeader, Flex, Heading, Spacer, CardBody, Box, Button, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, CardFooter, Text, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, ButtonGroup, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import UpdatePostModule from "./UpdatePost";
 import CommentCard from "./CommentCard";
+import CreateCommentModule from "./CreateComment";
 
 interface Post {
     title: string,
@@ -30,12 +31,13 @@ const PostCard = ({ dataPost }: PostCardProps) => {
     const { userData } = useUserContext();
     const toast = useToast();
     
-    const [currentPostId, setCurrentPostId] = useState<string | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
+    const [currentPostId, setCurrentPostId] = useState<string>('');
+    const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
 
     const modalUpdatePost = useDisclosure()
     const modalDeletePost = useDisclosure()
+    const modalNewComment = useDisclosure()
 
     const handleUpdatePost = (postId: string) => {
         setCurrentPostId(postId);
@@ -45,6 +47,11 @@ const PostCard = ({ dataPost }: PostCardProps) => {
     const handleDeletePostModal = (postId: string) => {
         setCurrentPostId(postId);
         modalDeletePost.onOpen();
+    }
+
+    const handleNewComment = (postId: string) => {
+        setCurrentPostId(postId);
+        modalNewComment.onOpen();
     }
 
     const handleDeletePost = async (postId: string) => {
@@ -84,8 +91,7 @@ const PostCard = ({ dataPost }: PostCardProps) => {
 
     const fetchComment = async (postId: string) => {
         try {
-            // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get/${postId}`, {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/get/all`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get/${postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +100,7 @@ const PostCard = ({ dataPost }: PostCardProps) => {
 
             if (response.status === 200) {
                 const data = await response.json();
-                setComments(data);
+                setComments(prevComments => ({ ...prevComments, [postId]: data }));
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
@@ -113,7 +119,7 @@ const PostCard = ({ dataPost }: PostCardProps) => {
     const handleToggleComments = (postId: string) => {
         const isCurrentlyVisible = showComments[postId];
         setShowComments(prevState => ({ ...prevState, [postId]: !isCurrentlyVisible }));
-        if (!isCurrentlyVisible) {
+        if (!isCurrentlyVisible && !comments[postId]) {
             fetchComment(postId);
         }
     }
@@ -139,6 +145,9 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                                         <MenuList>
                                             <MenuItem>
                                                 Subscribe
+                                            </MenuItem>
+                                            <MenuItem onClick={() => handleNewComment(post.id)}>
+                                                Reply
                                             </MenuItem>
 
                                             {userData.username === post.username && (
@@ -171,11 +180,10 @@ const PostCard = ({ dataPost }: PostCardProps) => {
 
                         {showComments[post.id] && (
                             <Flex justify="right">
-                                <CommentCard  dataComment={comments} />
+                                <CommentCard dataComment={comments[post.id] || []} />
                             </Flex>
                         )}
                     </Card>
-
                 ))}
 
                 <Modal blockScrollOnMount={false} scrollBehavior='inside' isOpen={modalUpdatePost.isOpen} onClose={modalUpdatePost.onClose}>
@@ -203,6 +211,17 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                                 {currentPostId && <Button colorScheme='red' onClick={() => handleDeletePost(currentPostId)}>Delete</Button>}
                             </ButtonGroup>
                         </ModalFooter>
+                    </ModalContent>
+                </Modal>
+
+                <Modal blockScrollOnMount={false} scrollBehavior='inside' isOpen={modalNewComment.isOpen} onClose={modalNewComment.onClose}>
+                    <ModalOverlay />
+                    <ModalContent>
+                        <ModalHeader>Write something back!</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody mb={6}>
+                            <CreateCommentModule postId={currentPostId} />
+                        </ModalBody>
                     </ModalContent>
                 </Modal>
             </Box>

@@ -64,7 +64,7 @@ const UpdatePostModule = ({ postId }: PostProp ) => {
                 body: JSON.stringify(postData),
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast({
                     title: 'Post edited successfully!',
                     status: 'success',

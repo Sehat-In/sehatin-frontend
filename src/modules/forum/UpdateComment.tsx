@@ -60,7 +60,7 @@ const UpdateCommentModule = ({ commentId }: CommentProp ) => {
                 body: JSON.stringify(commentData),
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast({
                     title: 'Comment edited successfully!',
                     status: 'success',
