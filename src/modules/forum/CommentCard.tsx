@@ -61,13 +61,23 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error deleting comment.',
-                description: error.message,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error deleting comment.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error deleting comment.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         } finally {
             setTimeout(() => {
                 window.location.reload();
@@ -92,13 +102,23 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
             }
         } catch (error) {
-            toast({
-                title: 'Error fetching comments.',
-                description: error.message,
-                status: 'error',
-                position: 'top-right',
-                isClosable: true,
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error fetching comment.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error fetching comment.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
         }
     };
 

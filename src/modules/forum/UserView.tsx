@@ -38,13 +38,23 @@ const UserViewModule = () => {
                     throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
                 }
             } catch (error) {
-                toast({
-                    title: 'Error fetching posts.',
-                    description: error.message,
-                    status: 'error',
-                    position: 'top-right',
-                    isClosable: true,
-                });
+                if (error instanceof Error) {
+                    toast({
+                        title: 'Error fetching posts.',
+                        description: error.message,
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                } else {
+                    toast({
+                        title: 'Error fetching posts.',
+                        description: 'An unknown error occurred.',
+                        status: 'error',
+                        position: 'top-right',
+                        isClosable: true,
+                    });
+                }
             }
         };
         fetchPost();
