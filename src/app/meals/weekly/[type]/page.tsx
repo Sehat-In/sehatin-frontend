@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useUserContext } from '@/components/context/UserContext';
 import Image from "next/image";
 import {
   FaAppleAlt,

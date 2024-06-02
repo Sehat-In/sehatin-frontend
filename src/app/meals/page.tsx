@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useUserContext } from "@/components/context/UserContext";
 import Image from "next/image";
 
 const MealPlans = () => {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const { isAuthenticated } = useUserContext();
 
   const plans = [
     {
