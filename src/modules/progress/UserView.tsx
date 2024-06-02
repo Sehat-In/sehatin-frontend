@@ -150,6 +150,10 @@ const UserViewModule = () => {
                     position: 'top-right',
                     isClosable: true,
                 });
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
@@ -163,9 +167,7 @@ const UserViewModule = () => {
                 isClosable: true,
             });
         } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            modalDeleteGoal.onClose()
         }
     };
 
@@ -185,6 +187,10 @@ const UserViewModule = () => {
                     position: 'top-right',
                     isClosable: true,
                 });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
@@ -198,9 +204,7 @@ const UserViewModule = () => {
                 isClosable: true,
             });
         } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            modalClearGoals.onClose()
         }
     };
 
