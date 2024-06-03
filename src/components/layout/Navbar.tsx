@@ -36,6 +36,10 @@ const Navbar = () => {
         router.push('/progress');
     }
 
+    const handleGoToForum = () => {
+        router.push('/forum');
+    }
+
     return (
         <>
             <div className="navbar bg-base-100" style={{backgroundColor: "teal"}} >
@@ -44,6 +48,7 @@ const Navbar = () => {
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
                     {!isAuthenticated ? <></> : <Button onClick={handleGoToProgress}>Progress</Button>}
+                    {!isAuthenticated ? <></> : <Button onClick={handleGoToForum}>Forum</Button>}
                     {!isAuthenticated ? <></> : notification ? 
                     <Notifications color='red' username={userData.username}/> :
                     <Notifications color='gray' username={userData.username}/>}
