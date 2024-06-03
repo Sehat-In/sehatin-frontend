@@ -37,6 +37,13 @@ const PostCard = ({ dataPost }: PostCardProps) => {
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     const [likes, setLikes] = useState<{ [key: string]: number }>({});
     const [userLiked, setUserLiked] = useState<{ [key: string]: boolean }>({});
+    const [userSubscribedData, setUserSubscribedData] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (userData.username) {
+            checkUserSubscribe(userData.username);
+        }
+    }, [userData.username]);
 
     useEffect(() => {
         dataPost.forEach(post => {
@@ -73,7 +80,7 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                 },
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast({
                     title: 'Post deleted successfully!',
                     status: 'success',
@@ -85,23 +92,23 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
             }
         } catch (error) {
-            if (error instanceof Error) {
-                toast({
-                    title: 'Error deleting post.',
-                    description: error.message,
-                    status: 'error',
-                    position: 'top-right',
-                    isClosable: true,
-                });
-            } else {
-                toast({
-                    title: 'Error deleting post.',
-                    description: 'An unknown error occurred.',
-                    status: 'error',
-                    position: 'top-right',
-                    isClosable: true,
-                });
-            }
+            // if (error instanceof Error) {
+            //     toast({
+            //         title: 'Error deleting post.',
+            //         description: error.message,
+            //         status: 'error',
+            //         position: 'top-right',
+            //         isClosable: true,
+            //     });
+            // } else {
+            //     toast({
+            //         title: 'Error deleting post.',
+            //         description: 'An unknown error occurred.',
+            //         status: 'error',
+            //         position: 'top-right',
+            //         isClosable: true,
+            //     });
+            // }
         } finally {
             setTimeout(() => {
                 window.location.reload();
@@ -282,6 +289,97 @@ const PostCard = ({ dataPost }: PostCardProps) => {
         }
     };
 
+    const checkUserSubscribe = async (username: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/get-subscriptions/${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                const subscriptions = data.map((item: { post_id: string }) => item.post_id);
+                setUserSubscribedData(subscriptions);
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error fetching subscriptions:', error);
+        }
+    };
+
+    const handleSubscribe = async (postId: string) => {
+        const subscribeData = {
+            username: userData.username,
+            post_id: postId,
+        };
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/subscribe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(subscribeData)
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setUserSubscribedData(prev => [...prev, postId]);
+                console.log(data)
+
+                toast({
+                    title: 'Subscribed to post!',
+                    status: 'success',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                // setUserLiked(prevUserSubscribed => ({ ...prevUserSubscribed, [postId]: prevUserSubscribed }));
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+        }
+    };
+
+
+    const handleUnsubscribe = async (postId: string) => {
+        const subscribeData = {
+            username: userData.username,
+            post_id: postId,
+        };
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/posts/unsubscribe`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(subscribeData)
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setUserSubscribedData(prev => prev.filter(id => id !== postId));
+                console.log(data)
+                toast({
+                    title: 'Unsubscribed to post!',
+                    status: 'success',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+        }
+    };
+
     const handleToggleComments = (postId: string) => {
         const isCurrentlyVisible = showComments[postId];
         setShowComments(prevState => ({ ...prevState, [postId]: !isCurrentlyVisible }));
@@ -309,12 +407,14 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                                             <ChevronDownIcon />
                                         </MenuButton>
                                         <MenuList>
-                                            <MenuItem>
-                                                Subscribe
-                                            </MenuItem>
+                                        <MenuItem onClick={() => userSubscribedData.includes(post.id) ? handleUnsubscribe(post.id) : handleSubscribe(post.id)}>
+                                            {userSubscribedData.includes(post.id) ? 'Unsubscribe' : 'Subscribe'}
+                                        </MenuItem>
+                                        {userSubscribedData.includes(post.id) && (
                                             <MenuItem onClick={() => handleNewComment(post.id)}>
                                                 Reply
                                             </MenuItem>
+                                        )}
 
                                             {userData.username === post.username && (
                                                 <>
