@@ -2,8 +2,9 @@
 
 import { useUserContext } from "@/components/context/UserContext";
 import { ChatIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { Card, CardHeader, Flex, Heading, Spacer, CardBody, Box, Button, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, CardFooter, Text, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, ButtonGroup, useToast } from "@chakra-ui/react";
-import { useState } from "react";
+import { Card, CardHeader, Flex, Heading, Spacer, CardBody, Box, Button, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, CardFooter, Text, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, ButtonGroup, useToast, Spinner, IconButton } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
 import UpdatePostModule from "./UpdatePost";
 import CommentCard from "./CommentCard";
 import CreateCommentModule from "./CreateComment";
@@ -34,6 +35,15 @@ const PostCard = ({ dataPost }: PostCardProps) => {
     const [currentPostId, setCurrentPostId] = useState<string>('');
     const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
+    const [likes, setLikes] = useState<{ [key: string]: number }>({});
+    const [userLiked, setUserLiked] = useState<{ [key: string]: boolean }>({});
+
+    useEffect(() => {
+        dataPost.forEach(post => {
+            fetchLikeCount(post.id);
+            checkUserLike(post.id);
+        });
+    }, [dataPost]);
 
     const modalUpdatePost = useDisclosure()
     const modalDeletePost = useDisclosure()
@@ -136,6 +146,142 @@ const PostCard = ({ dataPost }: PostCardProps) => {
         }
     };
 
+    const fetchLikeCount = async (postId: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/likes/get/count/${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setLikes(prevLikes => ({ ...prevLikes, [postId]: data }));
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error fetching likes.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error fetching likes.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
+        }
+    };
+
+    const handleLikePost = async (postId: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/likes/like/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: userData.username })
+            });
+
+            if (response.status === 200) {
+                setUserLiked(prevUserLiked => ({ ...prevUserLiked, [postId]: !prevUserLiked[postId] }));
+                fetchLikeCount(postId);
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error liking post.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error liking post.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
+        }
+    };
+
+    const handleUnlikePost = async (postId: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/likes/unlike/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: userData.username })
+            });
+
+            if (response.status === 200) {
+                setUserLiked(prevUserLiked => ({ ...prevUserLiked, [postId]: !prevUserLiked[postId] }));
+                fetchLikeCount(postId);
+            } else {
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast({
+                    title: 'Error removing like from post.',
+                    description: error.message,
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error removing like from post.',
+                    description: 'An unknown error occurred.',
+                    status: 'error',
+                    position: 'top-right',
+                    isClosable: true,
+                });
+            }
+        }
+    };
+
+    const checkUserLike = async (postId: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/likes/get-user/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: userData.username })
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setUserLiked(prevUserLiked => ({ ...prevUserLiked, [postId]: true }));
+                console.log(data)
+            } else {
+                setUserLiked(prevUserLiked => ({ ...prevUserLiked, [postId]: false }));
+                const errorData = await response.json();
+                throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+        }
+    };
+
     const handleToggleComments = (postId: string) => {
         const isCurrentlyVisible = showComments[postId];
         setShowComments(prevState => ({ ...prevState, [postId]: !isCurrentlyVisible }));
@@ -153,7 +299,7 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                             <Flex>
                                 {/* <Avatar src={userData.profile.picture} /> */}
                                 <Flex flexDirection="column">
-                                    <Heading size='sm'>{post.username}</Heading>
+                                    <Heading size='sm'>By: {post.username}</Heading>
                                     <Heading size='md' marginBottom='2'>{post.title}</Heading>
                                 </Flex>
                                 <Spacer />
@@ -193,9 +339,20 @@ const PostCard = ({ dataPost }: PostCardProps) => {
 
                         <CardFooter justifyContent={"space-between"}>
                             <Text color="gray">{post.created_at.substring(0, 10)}</Text>
-                            <Button onClick={() => handleToggleComments(post.id)}>
-                                <ChatIcon />
-                            </Button>
+                            <Box>
+                                <IconButton
+                                    aria-label="Like post"
+                                    icon={userLiked[post.id] ? <FaThumbsUp /> : <FaRegThumbsUp />}
+                                    onClick={() => userLiked[post.id] ? handleUnlikePost(post.id) : handleLikePost(post.id)}
+                                    mr="2"
+                                />
+                                <Box as="span" mr="4">
+                                    {likes[post.id] || 0}
+                                </Box>
+                                <Button onClick={() => handleToggleComments(post.id)}>
+                                    <ChatIcon />
+                                </Button>
+                            </Box>
                         </CardFooter>
 
                         {showComments[post.id] && (
