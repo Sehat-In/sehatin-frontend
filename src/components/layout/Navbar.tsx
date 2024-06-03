@@ -36,7 +36,7 @@ const Navbar = () => {
         <>
             <div className="navbar bg-base-100" style={{backgroundColor: "grey"}} >
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Sehat-In</a>
+                    <a className="btn btn-ghost text-xl" href="/">Sehat-In</a>
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
                     {!isAuthenticated ? <></> : notification ? 
