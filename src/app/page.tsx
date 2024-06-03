@@ -18,17 +18,17 @@ export default function Home() {
             <Card bg="white" p="6" rounded="lg" shadow="lg">
                 <Text fontSize="2xl" fontWeight="bold" marginBottom="2">Meal & Workout Plans</Text>
                 <Text color="gray.600" marginBottom="4">Personalized meal and workout plans to help you achieve your fitness goals.</Text>
-                <Button bg="teal" color="white" py="2" px="4" rounded=".25em">Learn More</Button>
+                <Button bg="teal" color="white" py="2" px="4" rounded=".25em" as="a" href="/meals">Learn More</Button>
             </Card>
             <Card bg="white" p="6" rounded="lg" shadow="lg">
               <Text fontSize="2xl" fontWeight="bold" marginBottom="2">Progress Tracking</Text>
               <Text color="gray.600" marginBottom="4">Track your progress with our comprehensive tracking tools.</Text>
-              <Button bg="teal" color="white" py="2" px="4" rounded=".25em">Learn More</Button>
+              <Button bg="teal" color="white" py="2" px="4" rounded=".25em" as="a" href="/progress">Learn More</Button>
             </Card>
             <Card bg="white" p="6" rounded="lg" shadow="lg">
               <Text fontSize="2xl" fontWeight="bold" marginBottom="2">Community Forum</Text>
               <Text color="gray.600" marginBottom="4">Join our community to share tips and get support.</Text>
-              <Button bg="teal" color="white" py="2" px="4" rounded=".25em">Learn More</Button>
+              <Button bg="teal" color="white" py="2" px="4" rounded=".25em" as="a" href="/forum">Learn More</Button>
             </Card>
           </section>
         </Container>
