@@ -80,14 +80,14 @@ const WorkoutDetail = () => {
       handleNextExercise();
     }
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer, isPaused]);
 
   const handleStartWorkout = () => {
     if (workout && workout.exercises.length > 0) {
       setCurrentExerciseIndex(0);
-      if (workout.exercises[0].duration) {
-        setTimer(workout.exercises[0].duration);
-      }
+      const firstDuration = workout.exercises[0].duration || 0;
+      setTimer(firstDuration);
     }
   };
 
@@ -96,9 +96,9 @@ const WorkoutDetail = () => {
       const nextIndex = currentExerciseIndex + 1;
       if (isRest) {
         setIsRest(false);
-        if (workout.exercises[currentExerciseIndex].duration) {
-          setTimer(workout.exercises[currentExerciseIndex].duration);
-        }
+        const currentDuration =
+          workout.exercises[currentExerciseIndex].duration || 0;
+        setTimer(currentDuration);
       } else if (nextIndex < workout.exercises.length) {
         setCurrentExerciseIndex(nextIndex);
         setIsRest(true);
