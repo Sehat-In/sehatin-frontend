@@ -365,7 +365,6 @@ const PostCard = ({ dataPost }: PostCardProps) => {
             if (response.status === 200) {
                 const data = await response.json();
                 setUserSubscribedData(prev => prev.filter(id => id !== postId));
-                console.log(data)
                 toast({
                     title: 'Unsubscribed to post!',
                     status: 'success',
@@ -374,9 +373,14 @@ const PostCard = ({ dataPost }: PostCardProps) => {
                 });
             } else {
                 const errorData = await response.json();
+                console.log(errorData)
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
             }
         } catch (error) {
+        } finally {
+            // setTimeout(() => {
+            //     window.location.reload();
+            // }, 800);
         }
     };
 
