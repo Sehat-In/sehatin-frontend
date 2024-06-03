@@ -13,26 +13,21 @@ export default function Home() {
     >
       <div className="hero-content relative z-10 text-center text-neutral-content">
         <Container maxW="container.xl" marginX="auto" marginTop="8" p="4">
-          <Box textAlign="center" mb="12">
-            <Text
-              fontSize="4xl"
-              color="white"
-              fontWeight="bold"
-              marginBottom="4"
-            >
+          <Box textAlign="center" mb="8">
+            <Text fontSize="3xl" color="white" fontWeight="bold" mb="2">
               Welcome to Sehat-In
             </Text>
-            <Text fontSize="lg" color="white">
+            <Text fontSize="md" color="white">
               Your ultimate companion for a healthy lifestyle.
             </Text>
           </Box>
 
-          <section className="grid md:grid-cols-2 gap-8">
-            <Card bg="white" p="6" rounded="lg" shadow="lg">
-              <Text fontSize="2xl" fontWeight="bold" marginBottom="2">
+          <section className="grid md:grid-cols-2 gap-4">
+            <Card bg="white" p="4" rounded="lg" shadow="lg">
+              <Text fontSize="xl" fontWeight="bold" mb="2">
                 Meal Plan Recommendations
               </Text>
-              <Text color="gray.600" marginBottom="4">
+              <Text color="gray.600" mb="2">
                 Get personalized meal plans based on your needs.
               </Text>
               <Button
@@ -47,11 +42,11 @@ export default function Home() {
                 Learn More
               </Button>
             </Card>
-            <Card bg="white" p="6" rounded="lg" shadow="lg">
-              <Text fontSize="2xl" fontWeight="bold" marginBottom="2">
+            <Card bg="white" p="4" rounded="lg" shadow="lg">
+              <Text fontSize="xl" fontWeight="bold" mb="2">
                 Workout Programs
               </Text>
-              <Text color="gray.600" marginBottom="4">
+              <Text color="gray.600" mb="2">
                 Choose from a variety of workout programs to get started.
               </Text>
               <Button
@@ -66,11 +61,11 @@ export default function Home() {
                 Learn More
               </Button>
             </Card>
-            <Card bg="white" p="6" rounded="lg" shadow="lg">
-              <Text fontSize="2xl" fontWeight="bold" marginBottom="2">
+            <Card bg="white" p="4" rounded="lg" shadow="lg">
+              <Text fontSize="xl" fontWeight="bold" mb="2">
                 Progress Tracking
               </Text>
-              <Text color="gray.600" marginBottom="4">
+              <Text color="gray.600" mb="2">
                 Track your progress with our comprehensive tracking tools.
               </Text>
               <Button
@@ -85,11 +80,11 @@ export default function Home() {
                 Learn More
               </Button>
             </Card>
-            <Card bg="white" p="6" rounded="lg" shadow="lg">
-              <Text fontSize="2xl" fontWeight="bold" marginBottom="2">
+            <Card bg="white" p="4" rounded="lg" shadow="lg">
+              <Text fontSize="xl" fontWeight="bold" mb="2">
                 Community Forum
               </Text>
-              <Text color="gray.600" marginBottom="4">
+              <Text color="gray.600" mb="2">
                 Join our community to share tips and get support.
               </Text>
               <Button
