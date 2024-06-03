@@ -38,11 +38,12 @@ const Navbar = () => {
 
     return (
         <>
-            <div className="navbar bg-base-100" style={{backgroundColor: "grey"}} >
+            <div className="navbar bg-base-100" style={{backgroundColor: "teal"}} >
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl" href="/">Sehat-In</a>
+                    <a className="btn btn-ghost text-xl" href="/" style={{ color: "white" }}>Sehat-In</a>
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
+                    {!isAuthenticated ? <></> : <Button colorScheme="teal" onClick={handleGoToProgress}>Progress</Button>}
                     {!isAuthenticated ? <></> : notification ? 
                     <Notifications color='red' username={userData.username}/> :
                     <Notifications color='gray' username={userData.username}/>}
@@ -56,14 +57,11 @@ const Navbar = () => {
                                 
                                 <MenuList border={5}>
                                     <MenuItem>
-                                        <Button className="btn" onClick={handleGoToProgress}>Progress</Button>
-                                    </MenuItem>
-                                    <MenuItem>
                                         <Button backgroundColor={'red'} color={'white'} width={'100%'} onClick={handleLogout}>Logout</Button>
                                     </MenuItem>
                                 </MenuList>
                               </Menu>:
-                            <Button className="btn" onClick={handleLogin}>Login</Button>)}
+                            <Button onClick={handleLogin}>Login</Button>)}
                         </li>
                     </ul>
                 </div>
