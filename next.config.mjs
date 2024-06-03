@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    eslint:{
+    eslint: {
         ignoreDuringBuilds: true
     },
-    experimental:{
+    experimental: {
         missingSuspenseWithCSRBailout: false,
-    }
+    },
+    images: {
+        domains: ['images.unsplash.com', 'storage.googleapis.com'],
+    },
 };
 
 export default nextConfig;
