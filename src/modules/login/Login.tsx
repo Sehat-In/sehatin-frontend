@@ -43,6 +43,7 @@ const LoginModule: any = () => {
                 <Flex gap={2} justify={'center'} py={5}>
                     <Button onClick ={handleLogin}>Submit</Button>
                     <Button onClick={handleLoginWithGoogle}>Login with Google</Button>
+                    <Button onClick={()=>router.push('/register')}>Register</Button>
                 </Flex>
 
             </FormControl>
