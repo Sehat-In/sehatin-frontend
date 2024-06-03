@@ -78,6 +78,9 @@ export const UserContextProvider: React.FC<any> = ({ children }:any) => {
                 position: 'top-right',
                 isClosable: true,
             });
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 800);
         })
         .catch((error)=>{
             console.log(error);
