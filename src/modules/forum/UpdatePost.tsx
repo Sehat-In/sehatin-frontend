@@ -36,7 +36,7 @@ const UpdatePostModule = ({ postId }: PostProp ) => {
             } catch (error) {
                 if (error instanceof Error) {
                     toast({
-                        title: 'Error detching post data.',
+                        title: 'Error fetching post data.',
                         description: error.message,
                         status: 'error',
                         position: 'top-right',
