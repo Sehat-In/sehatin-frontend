@@ -43,7 +43,7 @@ const Navbar = () => {
                     <a className="btn btn-ghost text-xl" href="/" style={{ color: "white" }}>Sehat-In</a>
                 </div>
                 <div className="flex-none" style={{gap: 10}}>
-                    {!isAuthenticated ? <></> : <Button colorScheme="teal" onClick={handleGoToProgress}>Progress</Button>}
+                    {!isAuthenticated ? <></> : <Button onClick={handleGoToProgress}>Progress</Button>}
                     {!isAuthenticated ? <></> : notification ? 
                     <Notifications color='red' username={userData.username}/> :
                     <Notifications color='gray' username={userData.username}/>}
