@@ -20,6 +20,14 @@ export default function LoginHandler() {
         })
             .then((response)=>{
                 localStorage.setItem('user', JSON.stringify(response.data));
+
+                axios.post(process.env.NEXT_PUBLIC_API_URL + `/api/v1/${response.data.id}/create-progress`)
+                    .then((res)=>{
+                        console.log(res);
+                    })
+                    .catch((err)=>{
+                        console.log(err);
+                    })
                 window.location.href = '/';
             })
     }, [searchParams]);
