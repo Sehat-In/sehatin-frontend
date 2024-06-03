@@ -22,13 +22,13 @@ import {
 
 const MealPlans = () => {
   const router = useRouter();
-  const { isAuthenticated } = useUserContext();
+  const { isAuthenticated, loading } = useUserContext();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login"); // Redirect to login if not authenticated
+    if (!loading && !isAuthenticated) {
+      router.push("/login");
     }
   }, [isAuthenticated, router]);
 
