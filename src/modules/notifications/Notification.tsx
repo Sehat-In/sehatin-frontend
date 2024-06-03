@@ -28,6 +28,9 @@ const Notifications = (props: any) => {
                 setNotificationData(res.data);
                 setLoading(false);
             })
+            .catch((err) => {
+                setLoading(false)
+            })
     }
 
     const clearNotifications = () => {
@@ -35,6 +38,9 @@ const Notifications = (props: any) => {
             .then((res) => {
                 setNotificationData([]);
                 setLoading(false);
+            })
+            .catch((err) => {
+                setLoading(false)
             })
     }
     return (
