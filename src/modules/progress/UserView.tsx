@@ -72,7 +72,7 @@ const UserViewModule = () => {
                     const errorData = await response.json();
                     throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 toast({
                     title: 'Error fetching user progress.',
                     description: error.message,
@@ -93,7 +93,7 @@ const UserViewModule = () => {
                 });
 
                 if (response.status === 200) {
-                    const data = await response.json();
+                    const data: Goal[] = await response.json();
                     setGoals(data);
                     setNoGoals(data.length === 0);
                 } else if (response.status === 404) {
@@ -102,7 +102,7 @@ const UserViewModule = () => {
                     const errorData = await response.json();
                     throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown error'}`);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 toast({
                     title: 'Error fetching user goals.',
                     description: error.message,
@@ -117,7 +117,7 @@ const UserViewModule = () => {
 
         fetchOverallProgress();
         fetchUserGoals();
-    }, []);
+    }, [toast, userData.id]);
 
     const modalNewGoal = useDisclosure();
     const modalUpdateGoal = useDisclosure();
@@ -131,7 +131,7 @@ const UserViewModule = () => {
 
     const handleDeleteGoalModal = (goalId: number) => {
         setCurrentGoalId(goalId);
-        modalDeleteGoal.onOpen()
+        modalDeleteGoal.onOpen();
     };
 
     const handleDeleteGoal = async (goalId: number) => {
@@ -145,27 +145,29 @@ const UserViewModule = () => {
 
             if (response.status === 200) {
                 toast({
-                    title: 'Goal deleted successfully!',
+                    title: 'Goal deleted successfully! Please wait for reload.',
                     status: 'success',
                     position: 'top-right',
                     isClosable: true,
                 });
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
-                title: 'Error deleting goal.',
+                title: 'Error deleting goal. Please wait for reload.',
                 description: error.message,
                 status: 'error',
                 position: 'top-right',
                 isClosable: true,
             });
         } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            modalDeleteGoal.onClose()
         }
     };
 
@@ -180,27 +182,29 @@ const UserViewModule = () => {
 
             if (response.status === 200) {
                 toast({
-                    title: 'Goals cleared successfully!',
+                    title: 'Goals cleared successfully! Please wait for reload.',
                     status: 'success',
                     position: 'top-right',
                     isClosable: true,
                 });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Unknown Error'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
-                title: 'Error clearing goals.',
+                title: 'Error clearing goals. Please wait for reload.',
                 description: error.message,
                 status: 'error',
                 position: 'top-right',
                 isClosable: true,
             });
         } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            modalClearGoals.onClose()
         }
     };
 
@@ -252,16 +256,16 @@ const UserViewModule = () => {
                         <Card key={goal.id} p='2'>
                             <CardHeader>
                                 <Flex alignItems='center'>
-                                <Heading as='h5' size='sm' textTransform='uppercase'>
-                                    {`${goal.goal_type.replace(/_/g, ' ')} - ${goal.value} ${goal.goal_type.toLowerCase().includes('weight') ? 'kg' : 'cal'} in ${goal.period} ${goal.period_unit}${goal.period > 1 ? 's' : ''}`}
-                                </Heading>
-                                <Spacer />
-                                <Box textAlign='right'>
-                                    <Stat size='sm'>
-                                        <StatLabel>Current Progress</StatLabel>
-                                        <StatNumber>{`${goal.progress}/${goal.value} ${goal.goal_type.toLowerCase().includes('weight') ? 'kg' : 'cal'}`}</StatNumber>
-                                    </Stat>
-                                </Box>
+                                    <Heading as='h5' size='sm' textTransform='uppercase'>
+                                        {`${goal.goal_type.replace(/_/g, ' ')} - ${goal.value} ${goal.goal_type.toLowerCase().includes('weight') ? 'kg' : 'cal'} in ${goal.period} ${goal.period_unit}${goal.period > 1 ? 's' : ''}`}
+                                    </Heading>
+                                    <Spacer />
+                                    <Box textAlign='right'>
+                                        <Stat size='sm'>
+                                            <StatLabel>Current Progress</StatLabel>
+                                            <StatNumber>{`${goal.progress}/${goal.value} ${goal.goal_type.toLowerCase().includes('weight') ? 'kg' : 'cal'}`}</StatNumber>
+                                        </Stat>
+                                    </Box>
                                 </Flex>
                             </CardHeader>
 

@@ -1,37 +1,53 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import {
-    FormControl,
-    FormLabel,
-    Input,
-    Select,
-    RadioGroup,
-    Radio,
-    HStack,
     Button,
     Flex,
-    useToast,
+    FormControl,
+    FormLabel,
+    HStack,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    Radio,
+    RadioGroup,
+    Select,
     Spinner,
+    useToast,
 } from '@chakra-ui/react';
 import { useUserContext } from '@/components/context/UserContext';
 
-const UpdateGoalModule = ({ goalId }) => {
+interface GoalData {
+    goal_type: string;
+    value: string;
+    period: string;
+    period_unit: string;
+    progress: string;
+}
+
+interface UpdateGoalModuleProps {
+    goalId: number;
+}
+
+const UpdateGoalModule = ({ goalId }: UpdateGoalModuleProps) => {
     const { userData } = useUserContext();
     const toast = useToast();
 
-    const [goalType, setGoalType] = useState('');
-    const [value, setValue] = useState('');
-    const [period, setPeriod] = useState('');
-    const [periodUnit, setPeriodUnit] = useState('month');
-    const [progress, setProgress] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [goalType, setGoalType] = useState<string>('');
+    const [value, setValue] = useState<string>('');
+    const [period, setPeriod] = useState<string>('');
+    const [periodUnit, setPeriodUnit] = useState<string>('month');
+    const [progress, setProgress] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchGoalData = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/goals/${goalId}/`);
-                const goalData = await response.json();
+                const goalData: GoalData = await response.json();
 
                 setGoalType(goalData.goal_type);
                 setValue(goalData.value);
@@ -39,7 +55,7 @@ const UpdateGoalModule = ({ goalId }) => {
                 setPeriodUnit(goalData.period_unit);
                 setProgress(goalData.progress);
                 setIsLoading(false);
-            } catch (error) {
+            } catch (error: any) {
                 toast({
                     title: 'Error fetching goal data.',
                     description: error.message,
@@ -54,7 +70,7 @@ const UpdateGoalModule = ({ goalId }) => {
         fetchGoalData();
     }, [goalId, toast]);
 
-    const handleGoalTypeChange = (e) => {
+    const handleGoalTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setGoalType(e.target.value);
     };
 
@@ -79,27 +95,27 @@ const UpdateGoalModule = ({ goalId }) => {
 
             if (response.status === 200) {
                 toast({
-                    title: 'Goal updated successfully!',
+                    title: 'Goal updated successfully! Please wait for reload.',
                     status: 'success',
                     position: 'top-right',
                     isClosable: true,
                 });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
-                title: 'Error updating goal.',
+                title: 'Error updating goal. Please wait for reload.',
                 description: error.message,
                 status: 'error',
                 position: 'top-right',
                 isClosable: true,
             });
-        } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
         }
     };
 
@@ -110,6 +126,8 @@ const UpdateGoalModule = ({ goalId }) => {
             </Flex>
         );
     }
+
+    const maxProgress = value ? parseFloat(value) : undefined;
 
     return (
         <FormControl>
@@ -127,40 +145,62 @@ const UpdateGoalModule = ({ goalId }) => {
             </Select>
 
             <FormLabel>Value ({['lose_weight', 'gain_weight'].includes(goalType) ? 'kg' : 'cal'})</FormLabel>
-            <Input 
-                type='number' 
-                step='0.1' 
-                onChange={(e) => setValue(e.target.value)}
+            <NumberInput
+                min={1}
+                precision={1} 
+                step={0.1} 
+                onChange={(valueString) => setValue(valueString)}
                 value={value}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <FormLabel>Period</FormLabel>
-            <Input 
-                type='number' 
-                onChange={(e) => setPeriod(e.target.value)}
+            <NumberInput 
+                min={1}
+                onChange={(valueString) => setPeriod(valueString)}
                 value={period}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <FormLabel>Period Unit</FormLabel>
-            <RadioGroup onChange={(e) => setPeriodUnit(e)} value={periodUnit} mb={4}>
+            <RadioGroup onChange={(e: string) => setPeriodUnit(e)} value={periodUnit} mb={4}>
                 <HStack spacing='24px'>
                     <Radio value='hour'>Hour(s)</Radio>
                     <Radio value='day'>Day(s)</Radio>
+                    <Radio value='week'>Week(s)</Radio>
                     <Radio value='month'>Month(s)</Radio>
                     <Radio value='year'>Year(s)</Radio>
                 </HStack>
             </RadioGroup>
 
             <FormLabel>Progress</FormLabel>
-            <Input 
-                type='number' 
-                step='0.1' 
-                onChange={(e) => setProgress(e.target.value)}
+            <NumberInput 
+                min={1}
+                max={maxProgress}
+                precision={1}
+                step={0.1} 
+                onChange={(valueString) => setProgress(valueString)}
                 value={progress}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <Flex justify={'right'} mt={6}>
                 <Button onClick={handleSubmit} colorScheme='teal' size='md'>Update Goal</Button>

@@ -4,24 +4,21 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserViewModule from "@/modules/progress/UserView";
 import { useUserContext } from '@/components/context/UserContext';
+import { Spinner } from '@chakra-ui/react';
 
 const UserViewPage = () => {
-  const { userData } = useUserContext();
   const router = useRouter();
+  const {loading, isAuthenticated} = useUserContext();
 
-  useEffect(() => {
-    if (!userData || !userData.id) {
-      router.push('/login');
-    }
-  }, [userData, router]);
-
-  if (!userData || !userData.id) {
-    return null;
-  }
+  useEffect(()=>{
+      if(!loading && !isAuthenticated){
+          router.push('/login')
+      }
+  }, [loading])
 
   return (
     <div style={{ padding: '30px' }}>
-      <UserViewModule />
+      {loading ? <div><Spinner color='green.300' /></div> : isAuthenticated ? <UserViewModule /> : <></>}
     </div>
   );
 }

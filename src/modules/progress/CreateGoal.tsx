@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import {
-    FormControl,
-    FormLabel,
-    Input,
-    Select,
-    RadioGroup,
-    Radio,
-    HStack,
     Button,
     Flex,
+    FormControl,
+    FormLabel,
+    HStack,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    Radio,
+    RadioGroup,
+    Select,
     useToast,
 } from '@chakra-ui/react';
 import { useUserContext } from '@/components/context/UserContext';
@@ -19,12 +23,12 @@ const CreateGoalModule = () => {
     const { userData } = useUserContext();
     const toast = useToast();
 
-    const [goalType, setGoalType] = useState('');
-    const [value, setValue] = useState('');
-    const [period, setPeriod] = useState('');
-    const [periodUnit, setPeriodUnit] = useState('month');
+    const [goalType, setGoalType] = useState<string>('');
+    const [value, setValue] = useState<string>('');
+    const [period, setPeriod] = useState<string>('');
+    const [periodUnit, setPeriodUnit] = useState<string>('month');
 
-    const handleGoalTypeChange = (e) => {
+    const handleGoalTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setGoalType(e.target.value);
         // Reset value when goal type changes
         setValue('');
@@ -50,27 +54,27 @@ const CreateGoalModule = () => {
 
             if (response.status === 200) {
                 toast({
-                    title: 'Goal created successfully!',
+                    title: 'Goal created successfully! Please wait for reload.',
                     status: 'success',
                     position: 'top-right',
                     isClosable: true,
                 });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
                 const errorData = await response.json();
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
-                title: 'Error creating goal.',
+                title: 'Error creating goal. Please wait for reload.',
                 description: error.message,
                 status: 'error',
                 position: 'top-right',
                 isClosable: true,
             });
-        } finally {
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
         }
     };
 
@@ -92,29 +96,43 @@ const CreateGoalModule = () => {
             {goalType && (
                 <>
                     <FormLabel>Value ({['lose_weight', 'gain_weight'].includes(goalType) ? 'kg' : 'cal'})</FormLabel>
-                    <Input 
-                        type='number' 
-                        step='0.1' 
-                        onChange={(e) => setValue(e.target.value)}
+                    <NumberInput
+                        min={1}
+                        precision={1} 
+                        step={0.1} 
+                        onChange={(valueString) => setValue(valueString)}
                         value={value}
                         mb={4}
-                    />
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </>
             )}
 
             <FormLabel>Period</FormLabel>
-            <Input 
-                type='number' 
-                onChange={(e) => setPeriod(e.target.value)}
+            <NumberInput 
+                min={1}
+                onChange={(valueString) => setPeriod(valueString)}
                 value={period}
                 mb={4}
-            />
+            >
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
 
             <FormLabel>Period Unit</FormLabel>
-            <RadioGroup onChange={(e) => setPeriodUnit(e)} value={periodUnit}>
+            <RadioGroup onChange={(e: string) => setPeriodUnit(e)} value={periodUnit}>
                 <HStack spacing='24px'>
                     <Radio value='hour'>Hour(s)</Radio>
                     <Radio value='day'>Day(s)</Radio>
+                    <Radio value='week'>Week(s)</Radio>
                     <Radio value='month'>Month(s)</Radio>
                     <Radio value='year'>Year(s)</Radio>
                 </HStack>
