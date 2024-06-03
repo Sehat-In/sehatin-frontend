@@ -17,6 +17,7 @@ import {
   Heading,
   Text,
   VStack,
+  Spinner,
   useDisclosure,
   useOutsideClick,
   useToast,
@@ -121,6 +122,13 @@ const WorkoutPlans = () => {
   const { loading, isAuthenticated } = useUserContext();
   const toast = useToast();
 
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push("/login");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, router]);
+
   useOutsideClick({
     ref: dropdownRef,
     handler: () => {
@@ -142,7 +150,12 @@ const WorkoutPlans = () => {
     };
   }, [isOpen, onClose]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <Flex justify="center" align="center" minH="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
   if (!isAuthenticated) {
     router.push("/login"); // Redirect to login if not authenticated
     return null;
@@ -197,6 +210,10 @@ const WorkoutPlans = () => {
             cursor="pointer"
             onClick={() => handleProgramClick(program.id)}
             position="relative"
+            _hover={{
+              transform: "scale(1.05)",
+              transition: "transform 0.3s ease",
+            }}
           >
             <Flex
               position="absolute"
