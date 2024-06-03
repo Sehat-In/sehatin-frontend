@@ -32,6 +32,10 @@ const Navbar = () => {
         logout();
     }
 
+    const handleGoToProgress = () => {
+        router.push('/progress');
+    }
+
     return (
         <>
             <div className="navbar bg-base-100" style={{backgroundColor: "grey"}} >
@@ -51,9 +55,12 @@ const Navbar = () => {
                                 </MenuButton>
                                 
                                 <MenuList border={5}>
-                                  <MenuItem>
-                                  <Button backgroundColor={'red'} color={'white'} width={'100%'} onClick={handleLogout}>Logout</Button>
-                                  </MenuItem>
+                                    <MenuItem>
+                                        <Button className="btn" onClick={handleGoToProgress}>Progress</Button>
+                                    </MenuItem>
+                                    <MenuItem>
+                                        <Button backgroundColor={'red'} color={'white'} width={'100%'} onClick={handleLogout}>Logout</Button>
+                                    </MenuItem>
                                 </MenuList>
                               </Menu>:
                             <Button className="btn" onClick={handleLogin}>Login</Button>)}
