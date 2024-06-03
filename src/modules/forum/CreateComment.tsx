@@ -36,7 +36,7 @@ const CreateCommentModule = ({ postId }: CommentProp) => {
                 body: JSON.stringify(commentData),
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 toast({
                     title: 'Comment created successfully!',
                     status: 'success',
@@ -45,6 +45,7 @@ const CreateCommentModule = ({ postId }: CommentProp) => {
                 });
             } else {
                 const errorData = await response.json();
+                console.log(errorData);
                 throw new Error(`Error ${response.status}: ${errorData.detail || 'Please fill the required data and try again.'}`);
             }
         } catch (error) {
