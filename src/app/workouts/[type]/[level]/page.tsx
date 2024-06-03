@@ -14,6 +14,14 @@ import {
   VStack,
   CircularProgress,
   CircularProgressLabel,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 
 interface Exercise {
@@ -49,13 +57,10 @@ const WorkoutDetail = () => {
   const [isRest, setIsRest] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (type && level) {
-      console.log(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/workouts/${type}/${level}`
-      );
-
       fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/workouts/${type}/${level}`
       )
@@ -75,13 +80,14 @@ const WorkoutDetail = () => {
       handleNextExercise();
     }
     return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer, isPaused]);
 
   const handleStartWorkout = () => {
     if (workout && workout.exercises.length > 0) {
       setCurrentExerciseIndex(0);
-      setTimer(workout.exercises[0].duration || 0);
+      if (workout.exercises[0].duration) {
+        setTimer(workout.exercises[0].duration);
+      }
     }
   };
 
@@ -90,14 +96,15 @@ const WorkoutDetail = () => {
       const nextIndex = currentExerciseIndex + 1;
       if (isRest) {
         setIsRest(false);
-        setTimer(workout.exercises[currentExerciseIndex].duration || 0);
+        if (workout.exercises[currentExerciseIndex].duration) {
+          setTimer(workout.exercises[currentExerciseIndex].duration);
+        }
       } else if (nextIndex < workout.exercises.length) {
         setCurrentExerciseIndex(nextIndex);
         setIsRest(true);
         setTimer(30); // Rest period of 30 seconds
       } else {
-        alert("Workout Complete!");
-        router.push("/workouts");
+        onOpen();
       }
     }
   };
@@ -113,6 +120,11 @@ const WorkoutDetail = () => {
 
   const handleContinue = () => {
     setIsPaused(false);
+  };
+
+  const handleCloseModal = () => {
+    onClose();
+    router.push("/workouts");
   };
 
   if (loading) {
@@ -171,49 +183,49 @@ const WorkoutDetail = () => {
               <Heading as="h2" size="xl" mb={4} textAlign="center">
                 {isRest ? "Rest" : currentExercise.name}
               </Heading>
-              <CircularProgress
-                value={timer}
-                max={isRest ? 30 : currentExercise.duration || 1}
-                size="120px"
-                color="blue.500"
-                mb={6}
-              >
-                <CircularProgressLabel fontSize="2xl">
-                  {timer}s
-                </CircularProgressLabel>
-              </CircularProgress>
-              {isRest && (
-                <Text fontSize="2xl" color="gray.700" mb={4}>
-                  Rest for 30 seconds
-                </Text>
-              )}
-              {!isRest && (
+              {isRest ? (
+                <>
+                  <Text fontSize="2xl" color="gray.700" mb={4}>
+                    Rest for 30 seconds
+                  </Text>
+                  <CircularProgress
+                    value={30 - timer}
+                    max={30}
+                    size="120px"
+                    color="blue.500"
+                    mb={6}
+                  >
+                    <CircularProgressLabel fontSize="2xl">
+                      {30 - timer}s
+                    </CircularProgressLabel>
+                  </CircularProgress>
+                </>
+              ) : currentExercise.duration ? (
+                <CircularProgress
+                  value={timer}
+                  max={currentExercise.duration}
+                  size="120px"
+                  color="blue.500"
+                  mb={6}
+                >
+                  <CircularProgressLabel fontSize="2xl">
+                    {timer}s
+                  </CircularProgressLabel>
+                </CircularProgress>
+              ) : (
                 <VStack spacing={2} mb={4}>
-                  {currentExercise.duration && (
-                    <Text fontSize="xl">
-                      Duration:{" "}
-                      <Text as="span" fontWeight="bold">
-                        {currentExercise.duration}
-                      </Text>{" "}
-                      seconds
+                  <Text fontSize="xl">
+                    Reps:{" "}
+                    <Text as="span" fontWeight="bold">
+                      {currentExercise.reps}
                     </Text>
-                  )}
-                  {currentExercise.reps && (
-                    <Text fontSize="xl">
-                      Reps:{" "}
-                      <Text as="span" fontWeight="bold">
-                        {currentExercise.reps}
-                      </Text>
+                  </Text>
+                  <Text fontSize="xl">
+                    Sets:{" "}
+                    <Text as="span" fontWeight="bold">
+                      {currentExercise.sets}
                     </Text>
-                  )}
-                  {currentExercise.sets && (
-                    <Text fontSize="xl">
-                      Sets:{" "}
-                      <Text as="span" fontWeight="bold">
-                        {currentExercise.sets}
-                      </Text>
-                    </Text>
-                  )}
+                  </Text>
                 </VStack>
               )}
               <Flex justify="center" wrap="wrap" gap={4}>
@@ -301,6 +313,22 @@ const WorkoutDetail = () => {
           </Box>
         ))}
       </Grid>
+
+      <Modal isOpen={isOpen} onClose={handleCloseModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Workout Complete!</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Congratulations, you have completed your workout!</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleCloseModal}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

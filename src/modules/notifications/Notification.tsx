@@ -51,6 +51,9 @@ const Notifications = (props: any) => {
                 setNotificationData(notificationData);
                 setLoading(false);
             })
+            .catch((err) => {
+                setLoading(false)
+            })
     }
 
     const clearNotifications = () => {
@@ -58,6 +61,9 @@ const Notifications = (props: any) => {
             .then((res) => {
                 setNotificationData([] as message[]);
                 setLoading(false);
+            })
+            .catch((err) => {
+                setLoading(false)
             })
     }
     return (
