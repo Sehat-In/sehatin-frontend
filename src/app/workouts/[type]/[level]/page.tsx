@@ -101,8 +101,13 @@ const WorkoutDetail = () => {
         setTimer(currentDuration);
       } else if (nextIndex < workout.exercises.length) {
         setCurrentExerciseIndex(nextIndex);
-        setIsRest(true);
-        setTimer(30); // Rest period of 30 seconds
+        if (workout.exercises[nextIndex].duration) {
+          setIsRest(true);
+          setTimer(30); // Rest period of 30 seconds
+        } else {
+          setIsRest(false);
+          setTimer(0);
+        }
       } else {
         onOpen();
       }
@@ -125,6 +130,12 @@ const WorkoutDetail = () => {
   const handleCloseModal = () => {
     onClose();
     router.push("/workouts");
+  };
+
+  const currentExerciseHasDuration = () => {
+    return (
+      workout && workout.exercises[currentExerciseIndex]?.duration !== null
+    );
   };
 
   if (loading) {
@@ -189,20 +200,20 @@ const WorkoutDetail = () => {
                     Rest for 30 seconds
                   </Text>
                   <CircularProgress
-                    value={30 - timer}
+                    value={timer}
                     max={30}
                     size="120px"
                     color="blue.500"
                     mb={6}
                   >
                     <CircularProgressLabel fontSize="2xl">
-                      {30 - timer}s
+                      {timer}s
                     </CircularProgressLabel>
                   </CircularProgress>
                 </>
               ) : currentExercise.duration ? (
                 <CircularProgress
-                  value={timer}
+                  value={currentExercise.duration - timer}
                   max={currentExercise.duration}
                   size="120px"
                   color="blue.500"
@@ -249,7 +260,11 @@ const WorkoutDetail = () => {
                   </Button>
                 )}
                 <Button
-                  onClick={isRest ? handleSkipRest : handleNextExercise}
+                  onClick={
+                    isRest || !currentExerciseHasDuration()
+                      ? handleSkipRest
+                      : handleNextExercise
+                  }
                   bg="blue.500"
                   color="white"
                   _hover={{ bg: "blue.600" }}
@@ -279,7 +294,7 @@ const WorkoutDetail = () => {
               />
             </Box>
             <Box p={6}>
-              <Heading as="h2" size="lg" mb={2}>
+              <Heading as="h3" size="md" mb={4}>
                 {exercise.name}
               </Heading>
               <VStack spacing={2} align="start">
