@@ -169,7 +169,7 @@ const CommentCard = ({ dataComment }: CommentCardProps) => {
                 <Modal blockScrollOnMount={false} scrollBehavior='inside' isOpen={modalUpdateComment.isOpen} onClose={modalUpdateComment.onClose}>
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader>Update Comment</ModalHeader>
+                        <ModalHeader>Edit Comment</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody mb={6}>
                             {currentCommentId && <UpdateCommentModule commentId={currentCommentId} />}

@@ -24,7 +24,7 @@ const UpdateCommentModule = ({ commentId }: CommentProp) => {
     useEffect(() => {
         const fetchCommentData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get/${commentId}`);
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/comments/get-comment/${commentId}`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
